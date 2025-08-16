@@ -2,18 +2,43 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "extendo",
   "title": "Extendo",
-  "description": "Opinionated, hand-crafted commands for modern, high-performance people",
+  "description": "Opinionated, hand-crafted commands for modern, high-performance people.",
   "icon": "extension-icon.png",
   "author": "rishi-sadanandan",
-  "owner": "kesh",
+  "owner": "rishi-sadanandan",
   "license": "MIT",
+  "ai": {
+    "instructions": "When you don't know the user's working directory, ask for it."
+  },
   "commands": [
     {
-      "name": "update-agents-md",
-      "title": "Update AGENTS.md",
-      "subtitle": "Update AI steering document",
-      "description": "Summarize a codebase into a steering document to provide context to AI",
-      "mode": "view"
+      "name": "extendo",
+      "title": "Extendo",
+      "description": "Asks AI to explain this extension.",
+      "mode": "view",
+      "subtitle": "Extendo",
+      "arguments": [
+        {
+          "name": "question",
+          "placeholder": "Question",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "title": "List",
+      "description": "Main command. Extension data structures, CRUD operations, and API's. Items are just a generic placeholder for now.",
+      "mode": "view",
+      "subtitle": "Extendo"
+    },
+    {
+      "name": "new",
+      "title": "New",
+      "description": "Create a List Item. This is just a generic name for now. Will update List's Action Panel after implementing this.",
+      "mode": "view",
+      "subtitle": "Extendo"
     }
   ],
   "dependencies": {
