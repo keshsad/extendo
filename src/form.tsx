@@ -1,9 +1,9 @@
-import { ActionPanel, Form, Action, showToast, Toast } from "@raycast/api";
+import { ActionPanel, Form, Action, showToast, Toast, LocalStorage } from "@raycast/api";
 import { useForm } from "@raycast/utils";
 import { useState } from "react";
 import { URL } from "url";
 
-interface NewFormValues {
+interface Values {
   path: string[]
   title: string
   linear?: string
@@ -16,14 +16,24 @@ export default function Command() {
   const [linear, setLinear] = useState<string>("")
   const [github, setGithub] = useState<string>("")
 
-  const { handleSubmit, itemProps } = useForm<NewFormValues>({
-    onSubmit: (values) => {
+  const { handleSubmit, itemProps } = useForm<Values>({
+    onSubmit: async (values) => {
       console.log(values)
-      showToast({
-        style: Toast.Style.Success,
-        title: "Success!",
-        message: `Saved ${values.title}`,
-      })
+      try {
+        await LocalStorage.setItem(values.title.toLowerCase(), JSON.stringify({ ...values }))
+        const items = await LocalStorage.allItems<Values>()
+        console.log(`LocalStorage item count: ${Object.entries(items).length}`)
+        showToast({
+          style: Toast.Style.Success,
+          title: "Success!",
+        })
+      } catch (e: any) {
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Uh oh!",
+          message: e.message
+        })
+      }
     },
     validation: {
       path: (value) => value?.length === 0 ? "Required" : undefined,
