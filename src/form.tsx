@@ -1,4 +1,4 @@
-import { setCorpus } from "./helpers/storage"
+import { getCorpora, setCorpus } from "./helpers/storage"
 import { NewCorpusFormInput } from "./types"
 import {
   ActionPanel,
@@ -9,8 +9,22 @@ import {
 } from "@raycast/api"
 import { FormValidation, useForm } from "@raycast/utils"
 import { randomUUID } from "crypto"
+import { useEffect } from "react"
 
 export default function NewCorpusForm() {
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const corpora = await getCorpora()
+        if (mounted) console.log("corpora:", corpora)
+      } catch {
+        console.log("failed to get corpora")
+      }
+    })()
+    return () => { mounted = false }
+  })
+
   const { handleSubmit, itemProps } = useForm<NewCorpusFormInput>({
     onSubmit: async (values) => {
       try {
