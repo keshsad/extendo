@@ -9,11 +9,8 @@ import {
 } from "@raycast/api"
 import { FormValidation, useForm } from "@raycast/utils"
 import { randomUUID } from "crypto"
-import { useState } from "react"
 
 export default function NewCorpusForm() {
-  const [folder, setFolder] = useState<string[]>([])
-
   const { handleSubmit, itemProps } = useForm<NewCorpusFormInput>({
     onSubmit: async (values) => {
       try {
