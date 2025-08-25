@@ -1,33 +1,45 @@
-import { LocalStorage } from "@raycast/api";
-import { UUID } from "crypto";
-import { Corpus } from "../types";
+import { Corpus, NewCorpusFormInput } from "../types"
+import { LocalStorage } from "@raycast/api"
+import { UUID } from "crypto"
 
-export async function getCorpora() {
-  const items = await LocalStorage.allItems()
-  console.log("got items:", items)
-  //return items
+export async function getCorpora(): Promise<Corpus[] | undefined> {
+  const items = await LocalStorage.allItems<{ [key: UUID]: string }>()
+
+  const corpora: Corpus[] = Object.values(items)
+    .map(item => {
+      try {
+        return JSON.parse(item) as Corpus
+      } catch (error) {
+        console.error("Failed to parse corpus:", error)
+        return null
+      }
+    })
+    .filter(corpus => corpus !== null)
+
+  return corpora
 }
 
-export async function getCorpus(id: UUID) {
+export async function getCorpus(id: UUID): Promise<Corpus | undefined> {
   const item = await LocalStorage.getItem<string>(id)
   if (!item) return undefined
 
   const corpus: Corpus = JSON.parse(item)
-  console.log("got", corpus.id)
-  //return corpus
+  return corpus
 }
 
-export async function setCorpus(id: UUID, corpus: any) {
+export async function corpusExists(id: UUID): Promise<boolean> {
+  const item = await LocalStorage.getItem<string>(id)
+  return item !== undefined
+}
+
+export async function setCorpus(id: UUID, corpus: NewCorpusFormInput) {
   await LocalStorage.setItem(id, JSON.stringify(corpus))
-  console.log("set", id)
 }
 
 export async function deleteCorpus(id: UUID) {
   await LocalStorage.removeItem(id)
-  console.log("deleted", id)
 }
 
 export async function clearCorpora() {
   await LocalStorage.clear()
-  console.log("cleared")
 }
