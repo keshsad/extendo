@@ -33,12 +33,8 @@ export default function NewCorpusForm() {
       }
     },
     validation: {
-      folder: (value) => {
-        if (value === undefined || value.length == 0) return FormValidation.Required
-      },
-      title: (value) => {
-        if (value === undefined || value === "") return FormValidation.Required
-      },
+      folder: (value) => { if (value === undefined || value.length == 0) return FormValidation.Required },
+      title: (value) => { if (value === undefined || value === "") return FormValidation.Required },
     }
   })
 
