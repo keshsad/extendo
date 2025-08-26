@@ -12,9 +12,9 @@
   },
   "commands": [
     {
-      "name": "extendo",
-      "title": "wtf",
-      "description": "Asks AI to explain this extension.",
+      "name": "detail",
+      "title": "WTF is this?",
+      "description": "Explain this extension with AI.",
       "mode": "view",
       "subtitle": "Extendo",
       "arguments": [
@@ -28,15 +28,15 @@
     },
     {
       "name": "list",
-      "title": "list",
-      "description": "Main command. Extension data structures, CRUD operations, and API's. Items are just a generic placeholder for now.",
+      "title": "View Corpora",
+      "description": "List all Corpora from LocalStorage.",
       "mode": "view",
       "subtitle": "Extendo"
     },
     {
       "name": "form",
-      "title": "new",
-      "description": "Create a List Item. This is just a generic name for now. Will update List's Action Panel after implementing this.",
+      "title": "New Corpus",
+      "description": "Set a new Corpus into LocalStorage.",
       "mode": "view",
       "subtitle": "Extendo"
     }

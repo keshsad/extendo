@@ -1,7 +1,7 @@
-import { AI, LaunchProps, Detail } from "@raycast/api";
-import { useAI } from "@raycast/utils";
+import { AI, LaunchProps, Detail } from "@raycast/api"
+import { useAI } from "@raycast/utils"
 
-export default function Command(props: LaunchProps<{ arguments: Arguments.Extendo }>) {
+export default function ExtendoDetail(props: LaunchProps<{ arguments: Arguments.Detail }>) {
   const { question } = props.arguments
   const prompt = `
   You are responsible for explaining the Extendo Raycast extension to me, the developer.
@@ -58,7 +58,7 @@ export default function Command(props: LaunchProps<{ arguments: Arguments.Extend
   const { data, isLoading } = useAI(prompt, {
     model: AI.Model["Google_Gemini_2.0_Flash"],
     creativity: "low"
-  });
+  })
 
-  return <Detail isLoading={isLoading} markdown={data} />;
+  return <Detail isLoading={isLoading} markdown={data} />
 }

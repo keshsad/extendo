@@ -1,48 +1,40 @@
-import { ActionPanel, Form, Action, showToast, Toast } from "@raycast/api";
-import { useForm } from "@raycast/utils";
-import { useState } from "react";
-import { URL } from "url";
+import { randomUUID } from "crypto"
+import {
+  ActionPanel,
+  Form,
+  Action,
+  showToast,
+  Toast,
+} from "@raycast/api"
+import { FormValidation, useForm } from "@raycast/utils"
+import { setCorpus } from "./helpers/storage"
+import { NewCorpusFormInput } from "./types"
 
-interface NewFormValues {
-  path: string[]
-  title: string
-  linear?: string
-  github?: string
-}
+export default function NewCorpusForm() {
+  const { handleSubmit, itemProps } = useForm<NewCorpusFormInput>({
+    onSubmit: async (values) => {
+      try {
+        const id = randomUUID()
+        await setCorpus(id, { ...values, id })
 
-export default function Command() {
-  const [path, setPath] = useState<string[]>([])
-  const [title, setTitle] = useState<string>("")
-  const [linear, setLinear] = useState<string>("")
-  const [github, setGithub] = useState<string>("")
+        showToast({
+          style: Toast.Style.Success,
+          title: "Success!",
+          message: `Saved ${values.title} to Local Storage`
+        })
+      } catch {
+        console.error("Failed to save corpus")
 
-  const { handleSubmit, itemProps } = useForm<NewFormValues>({
-    onSubmit: (values) => {
-      console.log(values)
-      showToast({
-        style: Toast.Style.Success,
-        title: "Success!",
-        message: `Saved ${values.title}`,
-      })
+        showToast({
+          style: Toast.Style.Failure,
+          title: "Uh oh!",
+          message: "Failed to save corpus"
+        })
+      }
     },
     validation: {
-      path: (value) => value?.length === 0 ? "Required" : undefined,
-      title: (value) => value === "" ? "Required" : undefined,
-      linear: (value) => {
-        if (value === "" || value === undefined) return "URL is required"
-        try {
-          const url = new URL(value)
-          if (url.hostname !== "linear.app") return "Must be linear.app"
-          if (!(url.pathname.includes("/project"))) return "Must have /project"
-        } catch { "URL is invalid" }
-      },
-      github: (value) => {
-        if (value === "" || value === undefined) return "URL is required"
-        try {
-          const url = new URL(value)
-          if (url.hostname !== "github.com") return "Must be github.com"
-        } catch { "URL is invalid" }
-      }
+      folder: (value) => { if (value === undefined || value.length == 0) return FormValidation.Required },
+      title: (value) => { if (value === undefined || value === "") return FormValidation.Required },
     }
   })
 
@@ -54,11 +46,8 @@ export default function Command() {
         </ActionPanel>
       }
     >
-      <Form.FilePicker {...itemProps.path} title="Path" value={path} onChange={setPath} autoFocus allowMultipleSelection={false} canChooseDirectories canChooseFiles={false} />
-      <Form.TextField {...itemProps.title} title="Title" value={title} onChange={setTitle} />
-      <Form.Separator />
-      <Form.TextField {...itemProps.linear} title="Linear Project" value={linear} onChange={setLinear} />
-      <Form.TextField {...itemProps.github} title="GitHub Repository" value={github} onChange={setGithub} />
+      <Form.TextField {...itemProps.title} title="Title" />
+      <Form.FilePicker {...itemProps.folder} title="Folder" allowMultipleSelection={false} canChooseDirectories canChooseFiles={false} />
     </Form>
-  );
+  )
 }
