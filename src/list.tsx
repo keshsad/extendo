@@ -1,64 +1,82 @@
-import { ActionPanel, List } from "@raycast/api"
-import { randomUUID, UUID } from "crypto"
-import { useState } from "react"
+import { Action, ActionPanel, List } from "@raycast/api"
+import { useEffect, useState } from "react"
+import { getCorpora } from "./helpers/storage"
+import NewCorpusForm from "./form"
+import { Corpus } from "./types"
 
-const mock = {
-  items: [
-    { id: randomUUID(), title: "Journal" },
-    { id: randomUUID(), title: "Extendo" },
-  ],
-  actions: [
-    { id: randomUUID(), title: "New", onAction: () => console.log("action: new") },
-    { id: randomUUID(), title: "Delete", onAction: () => console.log("action: delete") },
-    { id: randomUUID(), title: "Edit", onAction: () => console.log("action: rename") },
-    { id: randomUUID(), title: "Copy Context", onAction: () => console.log("action: copy context") },
-    { id: randomUUID(), title: "Copy Steering", onAction: () => console.log("action: copy steering") },
-    { id: randomUUID(), title: "Copy Path", onAction: () => console.log("action: copy path") },
-    { id: randomUUID(), title: "Toggle Detail", onAction: () => console.log("action: toggle isShowingDetail") },
-    {
-      id: randomUUID(), title: "Context", children: [
-        { id: randomUUID(), title: "Compact", onAction: () => console.log("action: compact") },
-        { id: randomUUID(), title: "Extend", onAction: () => console.log("action: extend") },
-      ]
-    },
-    {
-      id: randomUUID(), title: "Steering", children: [
-        { id: randomUUID(), title: "Compact", onAction: () => console.log("action: compact") },
-        { id: randomUUID(), title: "Extend", onAction: () => console.log("action: extend") },
-      ]
-    }
-  ]
-}
+console.log("View Corpora command started\n\n")
 
-export default function Command() {
+export default function ViewCorporaList() {
   const [searchText, setSearchText] = useState("")
-  const [items, setItems] = useState(mock.items)
+  const [items, setItems] = useState<Corpus[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  // use global actions variable to transform local items to include it's own actions
-  // each item in the items array is of type List.Item, so each item has an actions property for the ActionPanel
-  // meaning we can type our items accordingly
+  let corpora: Corpus[] = []
+
+  useEffect(() => {
+    (async () => {
+      console.log("useEffect started\n")
+      setIsLoading(true)
+      try {
+        const items = await getCorpora()
+        if (!items) return
+        setItems(items)
+        corpora = items
+        console.log("getCorpora items:", items)
+      } catch { console.error("Failed to fetch Corpora") }
+      setIsLoading(false)
+      console.log("useEffect finished\n\n")
+    })()
+  }, [])
+
+  const onSearchTextChange = (text: string) => {
+    console.log("onSearchTextChange started\n")
+    console.log("text:", text)
+    console.log("setting searchText...\n")
+    setSearchText(() => text)
+    console.log("settting items...\n")
+    setItems(prev => prev.filter(item => {
+      console.log("item:", item)
+      console.log("item.title:", item.title)
+      console.log("item.title.toLowerCase():", item.title.toLowerCase())
+      console.log("text.toLowerCase():", text.toLowerCase())
+      console.log("comparing...", item.title.toLowerCase().includes(text.toLowerCase()))
+      item.title.toLowerCase().includes(text.toLowerCase())
+    }))
+    console.log("onSearchTextChange finished\n")
+  }
 
   return (
     <List
+      isLoading={isLoading}
       searchText={searchText}
-      onSearchTextChange={text => {
-        setSearchText(() => text)
-        setItems(() => mock.items.filter(item => item.title.toLowerCase().includes(text.toLowerCase())))
-      }}
+      onSearchTextChange={onSearchTextChange}
       searchBarAccessory={<Dropdown />}
-      navigationTitle="List"
       searchBarPlaceholder="Search..."
     >
-      {(searchText === "" && items.length === 0) ? (
-        <List.EmptyView title="No results. Make a new search or item!" icon="📂" />
-      ) : (
-        <List.Section title="Results" subtitle={items.length.toString()}>
-          {items.map(item => <List.Item title={item.title} id={item.id} key={item.id} />)}
-        </List.Section>
-      )}
+      {(searchText === "" && items.length === 0)
+        ? <List.EmptyView icon="📂" title="No results!" description="Try adding a New Corpus..." actions={emptyActions} />
+        : (searchText !== "" && items.length === 0)
+          ? <List.EmptyView icon="😩" title="No results!" description="Try a different search..." actions={emptyActions} />
+          : <List.Section title="Results" subtitle={items.length.toString()}>
+            {items.map(item => <List.Item key={item.id} title={item.title} actions={action(item)} />)}
+          </List.Section>
+      }
     </List>
   )
 }
+
+const emptyActions = (
+  <ActionPanel>
+    <Action.Push title="New Corpus" target={<NewCorpusForm />} />
+  </ActionPanel>
+)
+
+const action = (item: any) => (
+  <ActionPanel>
+    <Action.ShowInFinder title="Show in Finder" path={item.path} />
+  </ActionPanel>
+)
 
 function Dropdown() {
   return (
@@ -68,11 +86,6 @@ function Dropdown() {
         <List.Dropdown.Item title="Codebase" value="Codebase" />
         <List.Dropdown.Item title="Markdown" value="Markdown" />
       </List.Dropdown.Section>
-      <List.Dropdown.Section title="Connections">
-        <List.Dropdown.Item title="GitHub" value="GitHub" />
-        <List.Dropdown.Item title="Linear" value="Linear" />
-      </List.Dropdown.Section>
     </List.Dropdown>
   )
 }
-
